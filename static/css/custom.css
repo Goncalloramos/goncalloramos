@@ -1,0 +1,33 @@
+/* Custom styles for goncalloramos.com */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom transitions */
+.transition-shadow {
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Custom focus styles */
+*:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Custom selection color */
+::selection {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* Responsive font sizes */
+@media (max-width: 640px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .text-xl {
+        font-size: 1.125rem;
+    }
+} 
