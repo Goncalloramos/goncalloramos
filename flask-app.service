@@ -1,0 +1,14 @@
+[Unit]
+Description=Goncalo Ramos Flask Application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/goncalloramos.com/html
+Environment="PATH=/var/www/goncalloramos.com/html/venv/bin"
+ExecStart=/var/www/goncalloramos.com/html/venv/bin/python app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target 
