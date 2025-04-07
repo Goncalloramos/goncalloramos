@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # Configuration
-REMOTE_USER="goncalloramos"  # Updated username
-REMOTE_HOST="raspi"  # Hostname
 REMOTE_DIR="/var/www/goncalloramos.com/html"
 LOCAL_DIR="."
 
@@ -11,40 +9,35 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Starting deployment to Raspberry Pi...${NC}"
+echo -e "${GREEN}Starting deployment...${NC}"
 
-# Create remote directory if it doesn't exist
-ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo mkdir -p ${REMOTE_DIR}"
+# Create directory if it doesn't exist
+echo -e "${GREEN}Creating directory...${NC}"
+sudo mkdir -p ${REMOTE_DIR}
 
-# Sync files to remote server
-echo -e "${GREEN}Syncing files...${NC}"
-rsync -avz --delete \
-    --exclude '.git' \
-    --exclude 'deploy.sh' \
-    --exclude 'nginx-config-template.conf' \
-    --exclude 'flask-app.service' \
-    ${LOCAL_DIR}/ ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/
+# Copy files
+echo -e "${GREEN}Copying files...${NC}"
+sudo cp -r ${LOCAL_DIR}/* ${REMOTE_DIR}/
 
 # Set up Python virtual environment
 echo -e "${GREEN}Setting up Python environment...${NC}"
-ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_DIR} && \
-    sudo python3 -m venv venv && \
-    sudo venv/bin/pip install -r requirements.txt"
+cd ${REMOTE_DIR}
+sudo python3 -m venv venv
+sudo venv/bin/pip install -r requirements.txt
 
 # Set proper permissions
 echo -e "${GREEN}Setting permissions...${NC}"
-ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo chown -R www-data:www-data ${REMOTE_DIR}"
+sudo chown -R www-data:www-data ${REMOTE_DIR}
 
-# Copy and enable systemd service
+# Set up systemd service
 echo -e "${GREEN}Setting up systemd service...${NC}"
-scp flask-app.service ${REMOTE_USER}@${REMOTE_HOST}:/tmp/
-ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo mv /tmp/flask-app.service /etc/systemd/system/ && \
-    sudo systemctl daemon-reload && \
-    sudo systemctl enable flask-app && \
-    sudo systemctl restart flask-app"
+sudo cp flask-app.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable flask-app
+sudo systemctl restart flask-app
 
 # Reload Nginx
 echo -e "${GREEN}Reloading Nginx...${NC}"
-ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo systemctl reload nginx"
+sudo systemctl reload nginx
 
 echo -e "${GREEN}Deployment completed successfully!${NC}" 
